@@ -12,12 +12,22 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.get_all_tags()
-    @selected = @all_ratings
+    if session[:ratings].nil?
+      session[:ratings] = @all_ratings
+    end
+
     if params[:ratings].nil?
-      @movies = Movie.sort_by_paramaters(params[:sort_by],@all_ratings)
+      flash.keep
+      redirect_to movies_path(ratings:session[:ratings],sort_by:params[:sort_by])
+    elsif params[:sort_by].nil? && !session[:sort_by].nil?
+      flash.keep
+      redirect_to movies_path(ratings:params[:ratings],sort_by:session[:sort_by])
     else
-      @selected = params[:ratings].keys
-      @movies = Movie.sort_by_paramaters(params[:sort_by],params[:ratings].keys)
+      session[:sort_by] = params[:sort_by]
+      if Hash === params[:ratings]
+        session[:ratings] = params[:ratings].keys
+      end
+      @movies = Movie.sort_by_paramaters(params[:sort_by],session[:ratings])
     end
   end
 
