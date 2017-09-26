@@ -11,7 +11,14 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.sort_by_paramaters(params[:sort_by])
+    @all_ratings = Movie.get_all_tags()
+    @selected = @all_ratings
+    if params[:ratings].nil?
+      @movies = Movie.sort_by_paramaters(params[:sort_by],@all_ratings)
+    else
+      @selected = params[:ratings].keys
+      @movies = Movie.sort_by_paramaters(params[:sort_by],params[:ratings].keys)
+    end
   end
 
   def new
